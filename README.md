@@ -69,6 +69,17 @@ Dataset: `data/manifest.json` lists every window (scan, patch, position, split);
 open data with `fetch_meshes` + `stacks` + `external` (CT is not redistributed). Tests: `python -m pytest tests`
 (8, including an end-to-end run of `apply` on a synthetic scan).
 
+## Related work
+
+- villa: `lasagna`/`snap_surf` and Erwin Nieuwlaar's `snap_meshes.py` snap to the m7 surface *prediction*, not to
+  the CT; `scrollprize/fiber_strip_small_v1` (Sean Johnson, 14 Oct 2026) predicts the sheet's normal offset around a
+  traced fiber (Paris 4), so it needs fibers first. This model needs only the mesh and the scan.
+- ScrollFiesta (Hari Seldon): `RectoRefine` moves a mesh to the outward dark-to-bright boundary of the CT; Hari set
+  the "within about 2 voxels of the recto" bar this work uses.
+- Per-tile depth re-centring before ink: tarikcankorkmaz measured an oracle gain (0.785 to 0.896 AUC) with no
+  label-free selector; AndreasHad04's label-free depth filter (villa #1898); inkdx's window-scale snap. The ink test
+  here is a label-free per-node correction of the surface itself.
+
 ## Limits
 
 - Truth on Paris 4 is the verified patch, not an independent recto measurement; the patches sit about 2 voxels
