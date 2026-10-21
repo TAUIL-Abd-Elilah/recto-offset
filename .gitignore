@@ -1,0 +1,5 @@
+runs/*/
+runs/*.done
+results/*.tmp
+__pycache__/
+*.pyc
