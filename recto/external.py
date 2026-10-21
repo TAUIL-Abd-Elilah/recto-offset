@@ -1,0 +1,123 @@
+"""Stacks from curated segments of another scan, for testing the model off Paris 4 (no training on them).
+
+Default: PHerc. 0139, native 9.362 um scan 20250728140407 (113 keV), the resolution and energy class of the First
+Letters scrolls. Its published segments (w023-w059, used for the team's ink labels) carry a mesh on exactly that
+volume (`mesh/<id>-on-20250728140407-9.362um.tifxyz`). The scroll axis is not published for it, so normals are
+oriented outward from the centre of the non-zero (masked) area of a coarse level slice at the window's height; each
+window's mean CT profile is kept so the orientation can be checked (bright sheet just outward of the surface, as on
+Paris 4).
+
+  python -m recto.external --root C:/VesuviusTemp/recto --segments w030 w035 w045 ... --windows 2
+Writes <root>/ext_stacks/<scroll>/<segment>__w<n>.npz in the same format as recto.stacks."""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import urllib.request
+
+import numpy as np
+
+from .ct import Volume
+from .stacks import load_tifxyz, normals, upsample, windows
+
+B = 'https://vesuvius-challenge-open-data.s3.us-east-1.amazonaws.com'
+SCANS = {'PHerc0139': ('volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr', (20974, 6621, 6621), '20250728140407-9.362um')}
+
+
+def segments(scroll: str) -> list[str]:
+    xml = urllib.request.urlopen(f'{B}/?list-type=2&prefix={scroll}/segments/&delimiter=/').read().decode()
+    return re.findall(rf'<Prefix>{scroll}/segments/([^<]*)/</Prefix>', xml)
+
+
+def fetch_mesh(scroll, seg, tag, out):
+    d = os.path.join(out, seg)
+    os.makedirs(d, exist_ok=True)
+    stem = seg.split('-')[0]
+    for f in ('x.tif', 'y.tif', 'z.tif', 'meta.json'):
+        p = os.path.join(d, f)
+        if not os.path.exists(p):
+            urllib.request.urlretrieve(f'{B}/{scroll}/segments/{seg}/mesh/{stem}-on-{tag}.tifxyz/{f}', p)
+    return d
+
+
+class Axis:
+    """Scroll centre per height from the masked scan's coarse level (centre of the non-zero area)."""
+    def __init__(self, vol_url, shape, cache, level=4):
+        f = 2 ** level
+        self.f = f
+        self.v = Volume(cache, url=f'{vol_url}/{level}', shape=tuple(-(-s // f) for s in shape))
+        self.memo = {}
+
+    def __call__(self, z: float):
+        zi = int(z / self.f)
+        if zi not in self.memo:
+            H, W = self.v.shape[1:]
+            yy, xx = np.meshgrid(np.arange(H), np.arange(W), indexing='ij')
+            sl = self.v.sample(np.stack([np.full(yy.shape, zi, float), yy, xx], -1).astype(float))
+            m = np.nan_to_num(sl) > 0
+            self.memo[zi] = (np.array([yy[m].mean(), xx[m].mean()]) * self.f) if m.any() else None
+        return self.memo[zi]
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--root', required=True); ap.add_argument('--scroll', default='PHerc0139')
+    ap.add_argument('--segments', nargs='+', required=True, help='winding tags (w030) or full segment ids')
+    ap.add_argument('--win', type=int, default=96); ap.add_argument('--step', type=float, default=2.0)
+    ap.add_argument('--K', type=int, default=24); ap.add_argument('--windows', type=int, default=2)
+    ap.add_argument('--seed', type=int, default=0); ap.add_argument('--workers', type=int, default=32)
+    a = ap.parse_args(argv)
+    rel, shape, tag = SCANS[a.scroll]
+    url = f'{B}/{a.scroll}/{rel}'
+    vol = Volume(os.path.join(a.root, 'ext_ct', a.scroll, '0'), url=f'{url}/0', shape=shape, workers=a.workers)
+    axis = Axis(url, shape, os.path.join(a.root, 'ext_ct', a.scroll, 'axis'))
+    allsegs = segments(a.scroll)
+    out = os.path.join(a.root, 'ext_stacks', a.scroll)
+    os.makedirs(out, exist_ok=True)
+    rng = np.random.default_rng(a.seed)
+    ks = np.arange(-a.K, a.K + 1, dtype=np.float32)
+    for want in a.segments:
+        cands = [s for s in allsegs if s == want or f'-{want}_' in s]
+        if not cands:
+            print('no segment', want, flush=True); continue
+        seg = sorted(cands)[-1]
+        try:
+            d = fetch_mesh(a.scroll, seg, tag, os.path.join(a.root, 'ext_meshes', a.scroll))
+        except Exception as e:  # noqa: BLE001
+            print('no mesh on', tag, seg, str(e)[:80], flush=True); continue
+        zyx, valid = load_tifxyz(d)
+        meta = json.load(open(os.path.join(d, 'meta.json')))
+        fz, fok = upsample(zyx, valid, (1.0 / meta['scale'][0]) / a.step)
+        n = normals(fz, fok)
+        for wi, (i0, j0) in enumerate(windows(fok, a.win, a.windows, rng)):
+            o = os.path.join(out, f'{seg}__w{wi}.npz')
+            if os.path.exists(o):
+                continue
+            Z = fz[i0:i0 + a.win, j0:j0 + a.win]; N = n[i0:i0 + a.win, j0:j0 + a.win].copy()
+            ok = fok[i0:i0 + a.win, j0:j0 + a.win] & np.all(np.isfinite(N), -1)
+            c = axis(float(np.nanmedian(Z[..., 0][ok])))
+            if c is None:
+                continue
+            radial = np.concatenate([np.zeros(Z.shape[:-1] + (1,)), Z[..., 1:] - c], -1)
+            if np.nanmedian(np.sum(radial * N, -1)[ok]) < 0:
+                N = -N
+            pts = Z[None] + ks[:, None, None, None] * np.nan_to_num(N)[None]
+            vol.prefetch(vol.keys_for(pts[:, ok].reshape(-1, 3)))
+            s = vol.sample(pts)
+            stack = np.where(np.isfinite(s), np.clip(s, 0, 255), 0).astype(np.uint8)
+            ok &= np.all(np.isfinite(s), 0)
+            prof = [float(stack[k][ok].mean()) for k in range(stack.shape[0])]
+            np.savez_compressed(o, stack=stack, valid=ok, zyx=Z.astype(np.float32), normal=N.astype(np.float32),
+                                meta=json.dumps({'patch': seg, 'scroll': a.scroll, 'split': 'external',
+                                                 'z_center': float(np.nanmedian(Z[..., 0][ok])), 'window': [i0, j0],
+                                                 'step': a.step, 'K': a.K, 'axis_yx': [float(c[0]), float(c[1])],
+                                                 'mean_profile': prof}))
+            K = a.K
+            print(seg[:34], 'w', wi, 'valid', round(float(ok.mean()), 3), 'peak k=%+d' % (int(np.argmax(prof)) - K),
+                  'rise k=%+d' % (int(np.argmax(np.gradient(prof))) - K), 'chunks', vol.fetched, flush=True)
+
+
+if __name__ == '__main__':
+    main()

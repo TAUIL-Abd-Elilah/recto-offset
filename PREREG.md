@@ -30,3 +30,15 @@ If 1 fails, the result is reported as a negative. If 2 fails, the model is not r
 
 **Out of scope for this test.** Scrolls other than Paris 4 (a later, separately stated check on native 9 µm scans);
 whether better placement raises ink-detection scores.
+
+## Amendment 1 (21 October 2026, before any PHerc. 0139 result): cross-scan check
+
+**Data.** Published PHerc. 0139 segments (w025-w059) on the native 9.362 µm, 113 keV scan 20250728140407, the
+resolution and energy class of the First Letters scrolls (`recto/external.py`). Two windows per segment where the
+mesh exists on that scan. The scroll axis is estimated from the masked scan (centre of the non-zero area of a
+level-4 slice); orientation was checked on the first windows (bright layer 0-3 voxels outward, as on Paris 4).
+Nothing from PHerc. 0139 is used for training, model selection or baseline calibration.
+
+**Bar.** The same as the main test, applied unchanged with the checkpoint chosen on Paris 4 validation: at
+amplitudes 4, 6 and 8 voxels the network beats the best baseline on the within-2-voxel share by at least
+10 percentage points and on the median error; at amplitude 0 at least 90 % of nodes stay within 1 voxel.

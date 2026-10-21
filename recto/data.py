@@ -27,12 +27,13 @@ def split_of(zc: float) -> str:
     return 'train'
 
 
-def load_stacks(root: str, split: str) -> list[dict]:
+def load_stacks(root: str, split: str, subdir: str = 'stacks') -> list[dict]:
+    """Windows of one split. split 'all' keeps every window (used for other scans, which are never trained on)."""
     out = []
-    for f in sorted(glob.glob(os.path.join(root, 'stacks', '*.npz'))):
+    for f in sorted(glob.glob(os.path.join(root, subdir, '*.npz'))):
         d = np.load(f)
         meta = json.loads(str(d['meta']))
-        if split_of(meta['z_center']) != split:
+        if split != 'all' and split_of(meta['z_center']) != split:
             continue
         out.append({'stack': d['stack'], 'valid': d['valid'], 'meta': meta, 'file': os.path.basename(f)})
     return out
