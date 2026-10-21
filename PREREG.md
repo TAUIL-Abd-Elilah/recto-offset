@@ -42,3 +42,24 @@ Nothing from PHerc. 0139 is used for training, model selection or baseline calib
 **Bar.** The same as the main test, applied unchanged with the checkpoint chosen on Paris 4 validation: at
 amplitudes 4, 6 and 8 voxels the network beats the best baseline on the within-2-voxel share by at least
 10 percentage points and on the median error; at amplitude 0 at least 90 % of nodes stay within 1 voxel.
+
+## Amendment 2 (21 October 2026, before any ink was read on these tiles): ink A/B on PHerc. 0841
+
+**Question.** Does moving a surface with the recto model change what an ink model reads at it?
+
+**Data.** The three labelled PHerc. 0841 segments (no public ink model trained on PHerc. 0841), their 9.366 µm
+meshes and native 113 keV scan; per segment the 4 non-overlapping 512 x 512 px tiles with the most labelled ink,
+chosen from the labels only (`recto/ink_ab.py`). Labels: the 20260918 human labels aligned to the published surface
+volume (as in 9um-reader-letter-shape).
+
+**Arms.** A published surface; B = A moved by the model; C = A pushed off by a smooth field of peak 4 voxels
+(seeded per tile); D = C moved by the model (it sees only C); E = C moved by the best model-free snap (nearest
+dark-to-bright rise). Readers: Reader V3 (primary) and Reader v2, stock ink_9um inference, forward. Checkpoint:
+the one chosen on Paris 4 validation.
+
+**Outcomes, fixed now.** Primary: Reader V3 human-label AUC over the 12 tiles (mean of the three segments),
+paired block bootstrap over 128-px blocks.
+1. *Recovery*: D - C > 0 with the 95 % interval above 0, and D - E > 0 with the interval above 0 (the model
+   recovers ink lost to a bad surface, better than a snap).
+2. *Published surfaces*: B - A reported with its interval. Above 0: the model improves curated surfaces. Within
+   +-0.005: it leaves their ink unchanged. Below 0 with the interval below 0: it harms them, and the release says so.
