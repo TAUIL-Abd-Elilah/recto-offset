@@ -39,6 +39,19 @@ def load_stacks(root: str, split: str, subdir: str = 'stacks') -> list[dict]:
     return out
 
 
+def consistent(meta: dict, K: int = 24) -> bool:
+    """Window kept for native-scan training/validation only if its mean CT profile looks like the Paris 4 verified
+    patches: within +-6 voxels of the surface, the brightest layer lies 1 voxel inward to 3 outward and the steepest
+    dark-to-bright rise 4 inward to 1 outward. Never applied to test scans."""
+    prof = np.asarray(meta.get('mean_profile', []), float)
+    if prof.size != 2 * K + 1:
+        return False
+    w = prof[K - 6:K + 7]
+    peak = int(np.argmax(w)) - 6
+    rise = int(np.argmax(np.gradient(w))) - 6
+    return -1 <= peak <= 3 and -4 <= rise <= 1
+
+
 def field(shape, rng, A=8.0, p_zero=0.1):
     if rng.random() < p_zero:
         return np.zeros(shape, np.float32)

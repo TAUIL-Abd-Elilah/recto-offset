@@ -83,3 +83,9 @@ model (a second look at that band, stated as such).
 **Real meshes (descriptive, no bar).** Automatically grown PHerc. 1447 meshes on its 8.64 µm scan: offsets the model
 applies, and before/after distance of the surface to the CT's nearest dark-to-bright rise and bright layer, plus
 cross-sections. A CT feature is not ground truth; this shows what the tool does on meshes it was built for.
+
+**Amendment 3b (21 October 2026, before r3 is trained).** Most native-scan segments are automatically grown meshes,
+not hand-curated, so their position is noisier truth than the Paris 4 verified patches. Native training and
+validation windows are kept only if their mean CT profile matches the Paris 4 convention (`data.consistent`: within
++-6 voxels, brightest layer 1 inward to 3 outward, steepest dark-to-bright rise 4 inward to 1 outward). The filter is
+never applied to the PHerc. 0009B test windows.

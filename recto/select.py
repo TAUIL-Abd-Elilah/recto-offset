@@ -16,7 +16,7 @@ def main(argv=None):
     ap.add_argument('--root', required=True); ap.add_argument('--ckpts', nargs='+', required=True)
     ap.add_argument('--out', required=True); ap.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
     a = ap.parse_args(argv)
-    val = data.load_stacks(a.root, 'val') + data.load_stacks(a.root, 'all', 'ext_stacks/PHerc0814')
+    val = data.load_stacks(a.root, 'val') + [w for w in data.load_stacks(a.root, 'all', 'ext_stacks/PHerc0814') if data.consistent(w['meta'])]
     x, y, m = data.fixed_set(val, 256, seed=1000, crop=64, R=12, A=12.0)
     res = {}
     for c in a.ckpts:

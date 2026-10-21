@@ -53,9 +53,9 @@ def main(argv=None):
     torch.manual_seed(a.seed)
     rng = np.random.default_rng(a.seed)
     train = data.load_stacks(a.root, 'train'); val = data.load_stacks(a.root, 'val')
-    extra = [w for s in a.extra_train for w in data.load_stacks(a.root, 'all', s)]
+    extra = [w for s in a.extra_train for w in data.load_stacks(a.root, 'all', s) if data.consistent(w['meta'])]
     for s in a.extra_val:
-        val += data.load_stacks(a.root, 'all', s)
+        val += [w for w in data.load_stacks(a.root, 'all', s) if data.consistent(w['meta'])]
     kw = dict(crop=a.crop, R=a.R, A=a.A)
     vx, vy, vm = data.fixed_set(val, a.val_n, seed=1000, **kw)
     print(f'train windows {len(train)} + extra {len(extra)}, val windows {len(val)}, device {a.device}', flush=True)
