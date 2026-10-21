@@ -63,3 +63,23 @@ paired block bootstrap over 128-px blocks.
    recovers ink lost to a bad surface, better than a snap).
 2. *Published surfaces*: B - A reported with its interval. Above 0: the model improves curated surfaces. Within
    +-0.005: it leaves their ink unchanged. Below 0 with the interval below 0: it harms them, and the release says so.
+
+## Amendment 3 (21 October 2026, before r3 is trained): native-scan training and a new held-out scan
+
+**Change.** r3 adds curated segments on native 9.362 µm scans to training (PHerc. 0139 and PHerc. 0500P2, half of
+the training crops), pushes up to 12 voxels (was 8), and keeps the intensity augmentation. PHerc. 0139 thereby
+leaves the test set; its r1/r2 results stay reported as they were.
+
+**Validation (model choice).** Paris 4 validation band plus all PHerc. 0814 windows (native 9.362 µm). The final
+model is whichever of r2 and r3 has the lower mean absolute error on this combined fixed set (256 crops, seed 1000,
+pushes up to 12 voxels). Nothing else decides.
+
+**New held-out scan.** PHerc. 0009B on its native 8.64 µm, 116 keV scan, the scan class of most First Letters
+scrolls; never used for training or choice. Bars as before: at pushes of 4, 6 and 8 voxels at least 10 points over
+the best model-free snap on the within-2-voxel share and a lower median error; at rest at least 90 % of nodes within
+1 voxel. Pushes of 10 and 12 voxels are reported without a bar. The Paris 4 test band is scored again with the final
+model (a second look at that band, stated as such).
+
+**Real meshes (descriptive, no bar).** Automatically grown PHerc. 1447 meshes on its 8.64 µm scan: offsets the model
+applies, and before/after distance of the surface to the CT's nearest dark-to-bright rise and bright layer, plus
+cross-sections. A CT feature is not ground truth; this shows what the tool does on meshes it was built for.

@@ -23,7 +23,16 @@ from .ct import Volume
 from .stacks import load_tifxyz, normals, upsample, windows
 
 B = 'https://vesuvius-challenge-open-data.s3.us-east-1.amazonaws.com'
-SCANS = {'PHerc0139': ('volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr', (20974, 6621, 6621), '20250728140407-9.362um')}
+# scroll -> (volume path under the scroll, mesh tag used in mesh/<id>-on-<tag>.tifxyz)
+SCANS = {'PHerc0139': ('volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr', '20250728140407-9.362um'),
+         'PHerc0814': ('volumes/20250804134230-9.362um-1.2m-113keV-masked.zarr', '20250804134230-9.362um'),
+         'PHerc0500P2': ('volumes/20250820143440-9.362um-1.2m-113keV-masked.zarr', '20250820143440-9.362um'),
+         'PHerc0009B': ('volumes/20250521125136-8.640um-1.2m-116keV-masked.zarr', '20250521125136-8.64um'),
+         'PHerc1447': ('volumes/20250521151220-8.640um-1.2m-116keV-masked.zarr', '20250521151220-8.64um')}
+
+
+def scan_shape(url):
+    return tuple(json.loads(urllib.request.urlopen(f'{url}/0/.zarray').read())['shape'])
 
 
 def segments(scroll: str) -> list[str]:
@@ -64,13 +73,15 @@ class Axis:
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument('--root', required=True); ap.add_argument('--scroll', default='PHerc0139')
-    ap.add_argument('--segments', nargs='+', required=True, help='winding tags (w030) or full segment ids')
+    ap.add_argument('--segments', nargs='*', default=[], help='winding tags (w030) or full segment ids')
+    ap.add_argument('--all-segments', action='store_true', help='every segment of the scroll with a mesh on the scan')
     ap.add_argument('--win', type=int, default=96); ap.add_argument('--step', type=float, default=2.0)
     ap.add_argument('--K', type=int, default=24); ap.add_argument('--windows', type=int, default=2)
     ap.add_argument('--seed', type=int, default=0); ap.add_argument('--workers', type=int, default=32)
     a = ap.parse_args(argv)
-    rel, shape, tag = SCANS[a.scroll]
+    rel, tag = SCANS[a.scroll]
     url = f'{B}/{a.scroll}/{rel}'
+    shape = scan_shape(url)
     vol = Volume(os.path.join(a.root, 'ext_ct', a.scroll, '0'), url=f'{url}/0', shape=shape, workers=a.workers)
     axis = Axis(url, shape, os.path.join(a.root, 'ext_ct', a.scroll, 'axis'))
     allsegs = segments(a.scroll)
@@ -78,7 +89,8 @@ def main(argv=None):
     os.makedirs(out, exist_ok=True)
     rng = np.random.default_rng(a.seed)
     ks = np.arange(-a.K, a.K + 1, dtype=np.float32)
-    for want in a.segments:
+    wanted = allsegs if a.all_segments else a.segments
+    for want in wanted:
         cands = [s for s in allsegs if s == want or f'-{want}_' in s]
         if not cands:
             print('no segment', want, flush=True); continue

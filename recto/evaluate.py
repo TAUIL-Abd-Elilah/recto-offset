@@ -42,16 +42,17 @@ def main(argv=None):
     ap.add_argument('--split', default='test'); ap.add_argument('--n', type=int, default=200)
     ap.add_argument('--stacks', default='stacks', help="subdir of root; e.g. ext_stacks/PHerc0139 with --split all")
     ap.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
+    ap.add_argument('--amps', type=int, nargs='+', default=[0, 2, 4, 6, 8])
     a = ap.parse_args(argv)
     ck = torch.load(a.ckpt, map_location='cpu')
     args = ck['args']
     net = RectoNet(layers=2 * args['R'] + 1, width=args['width']); net.load_state_dict(ck['model']); net.to(a.device)
     train = data.load_stacks(a.root, 'train'); test = data.load_stacks(a.root, a.split, a.stacks)
-    cx, cy, cm = data.fixed_set(train, 200, seed=7, crop=args['crop'], R=args['R'], A=args['A'])
+    cx, cy, cm = data.fixed_set(train, 200, seed=7, crop=args['crop'], R=args['R'], A=8.0)
     bias = {k: baselines.calibrate(cx, cy, cm, k) for k in ('ridge', 'edge')}
     res = {'ckpt': a.ckpt, 'step': ck.get('step'), 'split': a.split, 'stacks': a.stacks, 'windows': len(test),
            'patches': len({t['meta']['patch'] for t in test}), 'bias': bias, 'by_amplitude': {}}
-    for amp in (0, 2, 4, 6, 8):
+    for amp in a.amps:
         x, y, m = pushed_set(test, a.n, seed=2000 + amp, amp=amp, crop=args['crop'], R=args['R'])
         p, _ = predict(net, x, a.device)
         row = {'model': metrics(p - y, m), 'zero': metrics(-y, m)}
