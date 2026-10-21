@@ -66,7 +66,21 @@ def normalise(v: np.ndarray) -> np.ndarray:
     return (v - m) / max(s, 1.0)
 
 
-def sample(items, rng, crop=64, R=12, A=8.0, p_zero=0.1):
+def augment(v: np.ndarray, rng) -> np.ndarray:
+    """Generic scan-to-scan variation, applied to the CT view before normalisation: gamma 0.7-1.4, contrast
+    0.6-1.4, blur up to 1.2 voxels (along the normal and in-plane, separately), Gaussian noise up to 10 grey levels.
+    Chosen a priori for differences between scans (energy, resolution, reconstruction), not tuned on any test scan."""
+    v = np.clip(v, 0, 255) / 255.0
+    v = v ** rng.uniform(0.7, 1.4)
+    v = (v - v.mean()) * rng.uniform(0.6, 1.4) + v.mean()
+    sk, sp = rng.uniform(0, 1.2) * (rng.random() < 0.5), rng.uniform(0, 1.2) * (rng.random() < 0.5)
+    if sk or sp:
+        v = ndimage.gaussian_filter(v, (sk, sp, sp))
+    v = v * 255.0 + rng.normal(0, rng.uniform(0, 10), v.shape)
+    return v.astype(np.float32)
+
+
+def sample(items, rng, crop=64, R=12, A=8.0, p_zero=0.1, aug=False):
     """One (input (1, 2R+1, crop, crop), target (crop, crop), mask (crop, crop)) example."""
     it = items[rng.integers(len(items))]
     st, va = it['stack'], it['valid']
@@ -80,7 +94,10 @@ def sample(items, rng, crop=64, R=12, A=8.0, p_zero=0.1):
     if rng.random() < 0.5:
         st, va = st.transpose(0, 2, 1), va.T
     f = field((crop, crop), rng, A, p_zero)
-    x = normalise(view(np.ascontiguousarray(st), f, R))[None]
+    v = view(np.ascontiguousarray(st), f, R)
+    if aug and rng.random() < 0.8:
+        v = augment(v, rng)
+    x = normalise(v)[None]
     return x.astype(np.float32), (-f).astype(np.float32), np.ascontiguousarray(va)
 
 

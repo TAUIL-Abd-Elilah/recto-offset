@@ -43,6 +43,7 @@ def main(argv=None):
     ap.add_argument('--val-n', type=int, default=256); ap.add_argument('--seed', type=int, default=0)
     ap.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
     ap.add_argument('--workers', type=int, default=0)
+    ap.add_argument('--aug', action='store_true', help='intensity augmentation (data.augment)')
     a = ap.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     json.dump(vars(a), open(os.path.join(a.out, 'args.json'), 'w'), indent=1)
@@ -58,7 +59,7 @@ def main(argv=None):
     log = open(os.path.join(a.out, 'train.jsonl'), 'a')
     best, t0 = 1e9, time.time()
     for step in range(1, a.steps + 1):
-        xs, ys, ms = zip(*(data.sample(train, rng, **kw) for _ in range(a.batch)))
+        xs, ys, ms = zip(*(data.sample(train, rng, aug=a.aug, **kw) for _ in range(a.batch)))
         x = torch.from_numpy(np.stack(xs)).to(a.device)
         y = torch.from_numpy(np.stack(ys)).to(a.device)
         m = torch.from_numpy(np.stack(ms)).to(a.device)
