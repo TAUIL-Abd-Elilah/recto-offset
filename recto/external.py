@@ -78,6 +78,7 @@ def main(argv=None):
     ap.add_argument('--win', type=int, default=96); ap.add_argument('--step', type=float, default=2.0)
     ap.add_argument('--K', type=int, default=24); ap.add_argument('--windows', type=int, default=2)
     ap.add_argument('--seed', type=int, default=0); ap.add_argument('--workers', type=int, default=32)
+    ap.add_argument('--cleanup', action='store_true', help='delete the CT chunk cache of this scan when done')
     a = ap.parse_args(argv)
     rel, tag = SCANS[a.scroll]
     url = f'{B}/{a.scroll}/{rel}'
@@ -101,14 +102,20 @@ def main(argv=None):
             print('no mesh on', tag, seg, str(e)[:80], flush=True); continue
         zyx, valid = load_tifxyz(d)
         meta = json.load(open(os.path.join(d, 'meta.json')))
-        fz, fok = upsample(zyx, valid, (1.0 / meta['scale'][0]) / a.step)
-        n = normals(fz, fok)
-        for wi, (i0, j0) in enumerate(windows(fok, a.win, a.windows, rng)):
+        f = (1.0 / meta['scale'][0]) / a.step                     # fine nodes per coarse node
+        cw = int(np.ceil(a.win / f)) + 2                          # window size on the coarse grid, with a margin
+        # choose windows on the coarse grid, then upsample only those crops (huge meshes stay cheap)
+        for wi, (ci, cj) in enumerate(windows(valid, cw, a.windows, rng)):
             o = os.path.join(out, f'{seg}__w{wi}.npz')
             if os.path.exists(o):
                 continue
-            Z = fz[i0:i0 + a.win, j0:j0 + a.win]; N = n[i0:i0 + a.win, j0:j0 + a.win].copy()
-            ok = fok[i0:i0 + a.win, j0:j0 + a.win] & np.all(np.isfinite(N), -1)
+            fz, fok = upsample(zyx[ci:ci + cw, cj:cj + cw], valid[ci:ci + cw, cj:cj + cw], f)
+            n = normals(fz, fok)
+            Z = fz[:a.win, :a.win]; N = n[:a.win, :a.win].copy()
+            ok = fok[:a.win, :a.win] & np.all(np.isfinite(N), -1)
+            i0, j0 = int(ci * f), int(cj * f)
+            if Z.shape[:2] != (a.win, a.win) or ok.mean() < 0.9:
+                continue
             c = axis(float(np.nanmedian(Z[..., 0][ok])))
             if c is None:
                 continue
@@ -129,6 +136,9 @@ def main(argv=None):
             K = a.K
             print(seg[:34], 'w', wi, 'valid', round(float(ok.mean()), 3), 'peak k=%+d' % (int(np.argmax(prof)) - K),
                   'rise k=%+d' % (int(np.argmax(np.gradient(prof))) - K), 'chunks', vol.fetched, flush=True)
+    if a.cleanup:
+        import shutil
+        shutil.rmtree(os.path.join(a.root, 'ext_ct', a.scroll), ignore_errors=True)
 
 
 if __name__ == '__main__':
