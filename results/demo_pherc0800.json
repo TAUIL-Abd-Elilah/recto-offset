@@ -1,0 +1,119 @@
+{
+ "ckpt": "runs/r3/best.pt",
+ "source": "github.com/pscamillo/vesuvius-eligible-meshes (PHerc0800)",
+ "pooled": {
+  "within2_of_bright_before": 0.32916189434957654,
+  "within2_of_bright_after": 0.3945665000694155,
+  "offset_median_abs": 1.8393315970897675
+ },
+ "meshes": {
+  "z10464_w020": {
+   "nodes": 38416,
+   "offset_median_abs": 1.972934603691101,
+   "offset_p90_abs": 5.695047378540039,
+   "brightest_before_median": 0.0,
+   "brightest_after_median": 1.0,
+   "within2_of_bright_before": 0.3323094543940025,
+   "within2_of_bright_after": 0.4269835485214494
+  },
+  "z11072_w080": {
+   "nodes": 38416,
+   "offset_median_abs": 1.3775444030761719,
+   "offset_p90_abs": 4.030460834503174,
+   "brightest_before_median": 1.0,
+   "brightest_after_median": 0.0,
+   "within2_of_bright_before": 0.32947209496043317,
+   "within2_of_bright_after": 0.3663837984173261
+  },
+  "z12864_w060": {
+   "nodes": 38416,
+   "offset_median_abs": 1.80636727809906,
+   "offset_p90_abs": 5.838476181030273,
+   "brightest_before_median": 0.0,
+   "brightest_after_median": 0.0,
+   "within2_of_bright_before": 0.33470428987921697,
+   "within2_of_bright_after": 0.3838244481466056
+  },
+  "z14064_w020": {
+   "nodes": 38416,
+   "offset_median_abs": 1.8981351852416992,
+   "offset_p90_abs": 5.320093154907227,
+   "brightest_before_median": 0.0,
+   "brightest_after_median": 0.0,
+   "within2_of_bright_before": 0.39199812578092463,
+   "within2_of_bright_after": 0.4593138275718451
+  },
+  "z14672_w100": {
+   "nodes": 38416,
+   "offset_median_abs": 1.1483535766601562,
+   "offset_p90_abs": 4.615878105163574,
+   "brightest_before_median": 0.0,
+   "brightest_after_median": 0.0,
+   "within2_of_bright_before": 0.3296543107038734,
+   "within2_of_bright_after": 0.33707309454394
+  },
+  "z15872_w060": {
+   "nodes": 38416,
+   "offset_median_abs": 1.7986650466918945,
+   "offset_p90_abs": 5.186476230621338,
+   "brightest_before_median": 0.0,
+   "brightest_after_median": 0.0,
+   "within2_of_bright_before": 0.33014889629321115,
+   "within2_of_bright_after": 0.4189139941690962
+  },
+  "z17072_w040": {
+   "nodes": 38416,
+   "offset_median_abs": 2.4192087650299072,
+   "offset_p90_abs": 5.943746566772461,
+   "brightest_before_median": 1.0,
+   "brightest_after_median": 1.0,
+   "within2_of_bright_before": 0.3144002498958767,
+   "within2_of_bright_after": 0.38129945855893377
+  },
+  "z5664_w100": {
+   "nodes": 38416,
+   "offset_median_abs": 1.1315722465515137,
+   "offset_p90_abs": 4.210019111633301,
+   "brightest_before_median": 0.0,
+   "brightest_after_median": 0.0,
+   "within2_of_bright_before": 0.3191899208663057,
+   "within2_of_bright_after": 0.34175864223240315
+  },
+  "z6864_w080": {
+   "nodes": 38416,
+   "offset_median_abs": 1.4265116453170776,
+   "offset_p90_abs": 4.658481597900391,
+   "brightest_before_median": 0.0,
+   "brightest_after_median": 0.0,
+   "within2_of_bright_before": 0.3284829237817576,
+   "within2_of_bright_after": 0.36778946272386503
+  },
+  "z8064_w040": {
+   "nodes": 38416,
+   "offset_median_abs": 1.6485011577606201,
+   "offset_p90_abs": 5.123038291931152,
+   "brightest_before_median": 0.0,
+   "brightest_after_median": 0.0,
+   "within2_of_bright_before": 0.300890254060808,
+   "within2_of_bright_after": 0.34360683048729695
+  },
+  "z9264_w020": {
+   "nodes": 38416,
+   "offset_median_abs": 3.5228238105773926,
+   "offset_p90_abs": 7.244217872619629,
+   "brightest_before_median": 2.0,
+   "brightest_after_median": 1.0,
+   "within2_of_bright_before": 0.2835016659725115,
+   "within2_of_bright_after": 0.5359225322782174
+  },
+  "z9872_w100": {
+   "nodes": 38416,
+   "offset_median_abs": 1.9213614463806152,
+   "offset_p90_abs": 5.176314353942871,
+   "brightest_before_median": 0.0,
+   "brightest_after_median": 0.0,
+   "within2_of_bright_before": 0.3551905456059975,
+   "within2_of_bright_after": 0.3719283631820075
+  }
+ }
+}

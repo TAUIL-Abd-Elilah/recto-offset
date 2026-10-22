@@ -46,6 +46,44 @@ native-scan surfaces (result 2) do not hurt what an ink model reads.
 
 ![PHerc. 0841: labels and Reader V3 reads at the published, pushed, model-corrected and snapped surfaces](figures/ink_ab_pherc0841.png)
 
+## v1.1 (22 October 2026): native-scan training, larger errors, real First Letters meshes
+
+A second model, r3 (`weights/recto_offset_r3.pt`), adds curated and automatic segments on native 9.362 µm scans
+(PHerc. 0139, 0500P2) to training and pushes of up to 12 voxels; it was chosen over r2 on a combined Paris 4 +
+PHerc. 0814 validation set, as fixed in [PREREG.md](PREREG.md) (amendment 3) before training.
+
+**New held-out scan: PHerc. 0009B at its native 8.64 µm, 116 keV** (the scan class of most First Letters
+scrolls; automatically grown meshes; never used for training or choice). Share within 2 voxels after correction:
+
+| push | r3 | r2 | best snap | leave in place |
+|---|---|---|---|---|
+| 4 voxels | 55.7 % | **59.8 %** | 51.5 % | 51.5 % |
+| 6 voxels | **49.0 %** | 48.6 % | 35.6 % | 30.5 % |
+| 8 voxels | 46.3 % | **46.4 %** | 29.1 % | 24.0 % |
+| 10 voxels | **39.7 %** | 33.9 % | 25.0 % | 18.9 % |
+| 12 voxels | **40.0 %** | 31.6 % | 24.5 % | 18.5 % |
+| none (within 1 voxel) | 46.6 % | 47.8 % | | 100 % |
+
+Both models beat the best snap by 13 to 17 points from 6 voxels up; at 4 voxels the gain is 4 (r3) and 8 (r2)
+points, under the pre-set 10, and both move these surfaces by about a voxel at rest (pre-set bar failed). On the
+Paris 4 test band r3 is better than r2 for large errors (60.8 vs 55.3 % at 10 voxels, 49.0 vs 41.0 % at 12) and
+worse for small ones (78.5 vs 86.0 % at 4). Training on native scans did not remove the ~1-voxel moves at rest.
+
+**Real First Letters meshes.** 12 community spiral-fit windings of PHerc. 0800 (8.64 µm, 116 keV; pscamillo's
+vesuvius-eligible-meshes), one 800 x 800-voxel crop each, corrected with r3. Measure: share of nodes whose brightest
+layer within +-6 voxels lies within 2 voxels of the surface (a CT feature, not ground truth). For scale: Paris 4
+verified patches score 50.9 %, curated PHerc. 0139 segments 43.4 %, a random position 38.5 %.
+
+| | share within 2 voxels of the bright layer |
+|---|---|
+| published meshes | 32.9 % (below random: they tend to sit between sheets) |
+| after recto-offset (r3) | **39.5 %** (higher on all 12 meshes; median move 1.8 voxels) |
+
+![PHerc. 0800 community meshes and the corrected surfaces](figures/demo_pherc0800_sections.png)
+
+**Which model.** r2 (default) for meshes that are roughly on their sheet; r3 (`--ckpt weights/recto_offset_r3.pt`)
+for automatic or spiral-fit meshes that may be 6 or more voxels off.
+
 **Where to use it.** On meshes that may sit off their sheet (automatic traces, spiral-fit windings, meshes moved
 between scans): it brings them back better than any CT snap tried here. On curated meshes it is not needed and may
 move them by about a voxel without changing their ink.
