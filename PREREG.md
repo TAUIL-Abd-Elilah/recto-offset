@@ -89,3 +89,43 @@ not hand-curated, so their position is noisier truth than the Paris 4 verified p
 validation windows are kept only if their mean CT profile matches the Paris 4 convention (`data.consistent`: within
 +-6 voxels, brightest layer 1 inward to 3 outward, steepest dark-to-bright rise 4 inward to 1 outward). The filter is
 never applied to the PHerc. 0009B test windows.
+
+## Amendment 4 (23 October 2026, after the v1.1 results): an optional gate and a second pass, and a correction
+
+**What was seen first.** After v1.1 was published, a CPU exploration on the existing stacks (no retraining, no new
+data) scored apply-time variants on every evaluation set, including the held-out PHerc. 0009B scan, the Paris 4 test
+band and PHerc. 0139: a confidence gate, smoothing, dead bands, constant shifts, a second pass, and reading the CT at
+another scale. The gate and the second pass were kept because of what that exploration showed. Every gated or
+two-pass number on PHerc. 0009B, PHerc. 0139 and the Paris 4 test band is therefore post hoc, not a pre-registered
+test. The exploration also saw the r2 gate numbers on PHerc. 0814.
+
+**Gate.** `recto.apply --min-snr Z`: a node keeps its position unless |offset| >= Z * b, with b the predicted Laplace
+scale in voxels (b = 1 / confidence). Z = 0 (the default) is the v1.1 tool. Grid: Z in {0, 1, 1.5, 2, 3}.
+
+**Choice rule (written before `recto/gate_eval.py` was run).** Per model (r2, r3), Z = the smallest grid value whose
+one-pass gate keeps at least 85 % of nodes within 1 voxel at rest on PHerc. 0814 (validation: all 38 windows, the
+same crops and seeds as `recto.evaluate` uses on the other scans). If no grid value does, the gate is not recommended
+for that model. The rule makes the choice mechanical; it is not blind, since the r2 numbers on PHerc. 0814 were seen
+in the exploration.
+
+**Second pass.** `recto.apply --iterations 2` reads the CT again at the corrected surface and adds the next
+prediction. No rule picks it; it is reported for every Z, and any recommendation for it is a post hoc reading.
+
+**Reproduction first.** Z = 0 with one pass must reproduce the published numbers in `results/*.json` within 0.1
+points at every push, or no gate number is reported.
+
+**Outcome of the rule (after the run).** Z = 0 reproduced every published number within 0.002 points. On PHerc. 0814
+at rest, within 1 voxel for Z = 0 / 1 / 1.5 / 2 / 3: r2 45.0 / 62.6 / 76.0 / 85.6 / 97.2 %, r3 44.4 / 65.2 / 76.7 /
+84.0 / 94.2 %. So Z = 2 for r2 and Z = 3 for r3 (`results/v12_gating.json`). Every other number in that file
+(the test scans, the second pass, the other Z) is post hoc. In particular r3 at Z = 3 leaves 90.0 % of nodes within
+1 voxel at rest on PHerc. 0009B, the level of the amendment-3 bar, but this is not a pass of that bar: the gate was
+chosen after those results were seen, and at 4 and 6 voxel pushes the gated r3 falls below the best baseline there
+(50.4 vs 51.5 %, 34.7 vs 35.6 %).
+
+**Correction (the PHerc. 0800 demo of v1.1).** v1.1 compared the published PHerc. 0800 meshes with "a random position
+38.5 %". That figure is 5/13, the share expected if the brightest smoothed layer were spread evenly over the 13
+positions of the +-6-voxel window; it was never measured. Measured with the demo's own code on the same 12 crops,
+every node moved by its own uniform random shift along its normal (+-6 voxels, 5 seeds; `recto/demo_null.py`,
+`results/demo_pherc0800_null.json`), chance is 32.9 % (32.8-32.9 % over seeds; +-4.5-voxel shifts give the same).
+The published meshes (32.9 %) are at chance, not below it, and r3 (39.5 %) is 6.6 points above chance. This stays
+descriptive (amendment 3): a CT feature, not ground truth.

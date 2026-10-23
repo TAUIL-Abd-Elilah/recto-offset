@@ -68,6 +68,14 @@ def test_upsample_and_normals_of_a_plane():
     assert np.allclose(np.abs(n[5, 5]), [0, 0, 1], atol=1e-6)
 
 
+def test_umbilicus_from_a_scrollfiesta_axis_csv(tmp_path):
+    from recto.stacks import umbilicus_xy
+    p = tmp_path / 'axis.csv'
+    p.write_text('# reference axis in voxel coordinates (z,y,x).\nz,y,x,kind,w\n100.0,10.0,20.0,smooth,4.2\n'
+                 '300.0,30.0,60.0,smooth,-1.0\n')
+    assert np.allclose(umbilicus_xy(str(p))(np.array([100.0, 200.0, 400.0])), [[10, 20], [20, 40], [30, 60]])
+
+
 def test_windows_stay_inside_valid_area():
     ok = np.zeros((300, 300), bool); ok[50:250, 40:260] = True
     ws = windows(ok, 96, 3, np.random.default_rng(0))

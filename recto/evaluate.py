@@ -19,9 +19,11 @@ from .model import RectoNet
 from .train import metrics, predict
 
 
-def pushed_set(items, n, seed, amp, crop=64, R=12):
+def pushed_set(items, n, seed, amp, crop=64, R=12, raw=False):
+    """n frozen crops pushed by smooth fields of peak exactly amp. raw=True also returns the uint8 stack crops and the
+    fields, so a corrected surface can be read again (recto.gate_eval); the crops and fields are the same either way."""
     rng = np.random.default_rng(seed)
-    xs, ys, ms = [], [], []
+    xs, ys, ms, sts = [], [], [], []
     for _ in range(n):
         it = items[rng.integers(len(items))]
         h, w = it['valid'].shape
@@ -33,7 +35,10 @@ def pushed_set(items, n, seed, amp, crop=64, R=12):
             f = data.field((crop, crop), rng, A=amp, p_zero=0.0)
             f = f / max(np.abs(f).max(), 1e-6) * amp * np.sign(rng.standard_normal())   # peak exactly amp
         xs.append(data.normalise(data.view(np.ascontiguousarray(st), f, R))[None]); ys.append(-f); ms.append(va)
-    return np.stack(xs).astype(np.float32), np.stack(ys).astype(np.float32), np.stack(ms)
+        if raw:
+            sts.append(np.ascontiguousarray(st))
+    out = np.stack(xs).astype(np.float32), np.stack(ys).astype(np.float32), np.stack(ms)
+    return out + (sts,) if raw else out
 
 
 def main(argv=None):

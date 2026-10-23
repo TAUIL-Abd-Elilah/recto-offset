@@ -72,12 +72,14 @@ worse for small ones (78.5 vs 86.0 % at 4). Training on native scans did not rem
 **Real First Letters meshes.** 12 community spiral-fit windings of PHerc. 0800 (8.64 µm, 116 keV; pscamillo's
 vesuvius-eligible-meshes), one 800 x 800-voxel crop each, corrected with r3. Measure: share of nodes whose brightest
 layer within +-6 voxels lies within 2 voxels of the surface (a CT feature, not ground truth). For scale: Paris 4
-verified patches score 50.9 %, curated PHerc. 0139 segments 43.4 %, a random position 38.5 %.
+verified patches score 50.9 %, curated PHerc. 0139 segments 43.4 %, ~~a random position 38.5 %~~ chance 32.9 %
+(**corrected in v1.2**: 38.5 % was 5/13, an even spread of the brightest layer over the window, not a measurement;
+32.9 % is measured with random shifts along the normals on the same crops, `results/demo_pherc0800_null.json`).
 
 | | share within 2 voxels of the bright layer |
 |---|---|
-| published meshes | 32.9 % (below random: they tend to sit between sheets) |
-| after recto-offset (r3) | **39.5 %** (higher on all 12 meshes; median move 1.8 voxels) |
+| published meshes | 32.9 % (at chance; ~~below random: they tend to sit between sheets~~, corrected in v1.2) |
+| after recto-offset (r3) | **39.5 %** (6.6 points above chance; higher on all 12 meshes; median move 1.8 voxels) |
 
 ![PHerc. 0800 community meshes and the corrected surfaces](figures/demo_pherc0800_sections.png)
 
@@ -87,6 +89,74 @@ for automatic or spiral-fit meshes that may be 6 or more voxels off.
 **Where to use it.** On meshes that may sit off their sheet (automatic traces, spiral-fit windings, meshes moved
 between scans): it brings them back better than any CT snap tried here. On curated meshes it is not needed and may
 move them by about a voxel without changing their ink.
+
+## v1.2 (23 October 2026): a correction, an optional gate, a second pass, ScrollFiesta OBJ meshes
+
+**Correction.** v1.1 said the 12 published PHerc. 0800 meshes (32.9 % of nodes within 2 voxels of the bright layer)
+were "below random (38.5 %)". That 38.5 % was 5/13, the share if the brightest layer were spread evenly over the 13
+positions of the window; it was never measured. Measured on the same 12 crops with the same code, each node shifted
+by its own random amount along its normal (uniform +-6 voxels, 5 seeds; `recto/demo_null.py`), chance is 32.9 %
+(32.8-32.9 % over seeds; +-4.5 voxels gives the same). So the published meshes sit at chance, not below it, and r3
+(39.5 %) is 6.6 points above chance, about a third of the way to Paris 4 verified patches (50.9 %). The v1.1 text
+above is corrected in place; `results/demo_pherc0800_null.json`, [PREREG.md](PREREG.md) amendment 4.
+
+**Gate: `--min-snr Z`** (off by default; v1.1 behaviour unchanged). A node keeps its position unless
+|offset| >= Z x b, where b is the model's predicted Laplace scale in voxels (b = 1 / `confidence.tif`); `gate.tif`
+records which nodes moved. Z was fixed by a rule stated in amendment 4: the smallest Z in {0, 1, 1.5, 2, 3} that
+keeps at least 85 % of nodes within 1 voxel at rest on the PHerc. 0814 validation scan. That gives **Z = 2 for r2**
+and **Z = 3 for r3**. The gate was explored after the v1.1 results were known, so the numbers on the test scans
+below are post hoc (`recto/gate_eval.py`, same crops and seeds as `recto/evaluate.py`; `results/v12_gating.json`).
+
+| scan | model, Z | at rest: within 1 voxel | push 4: within 2 | push 8 | push 12 | best baseline at 4 / 8 / 12 |
+|---|---|---|---|---|---|---|
+| PHerc. 0814 (validation; sets Z) | r2, Z = 2 | 45.0 → **85.6** | 65.0 → 60.6 | 44.8 → 38.5 | 28.8 → 25.4 | 51.5 / 29.2 / 22.8 |
+|  | r3, Z = 3 | 44.4 → **94.2** | 60.5 → 51.4 | 41.6 → 30.7 | 34.4 → 26.9 |  |
+| PHerc. 0009B (held out; post hoc) | r2, Z = 2 | 47.8 → **78.8** | 59.8 → 56.1 | 46.4 → 43.1 | 31.6 → 27.6 | 51.5 / 29.1 / 24.5 |
+|  | r3, Z = 3 | 46.6 → **90.0** | 55.7 → 50.4 | 46.3 → 34.4 | 40.0 → 28.7 |  |
+| PHerc. 0139 (post hoc) | r2, Z = 2 | 45.0 → **79.6** | 63.8 → 58.8 | 50.7 → 45.3 | 35.3 → 31.2 | 51.5 / 32.5 / 26.4 |
+| Paris 4 test band (post hoc) | r2, Z = 2 | 93.0 → **97.3** | 86.0 → 80.0 | 70.2 → 64.5 | 40.9 → 36.0 | 58.1 / 42.5 / 32.1 |
+|  | r3, Z = 3 | 89.6 → **98.7** | 78.5 → 59.4 | 67.4 → 46.4 | 49.0 → 34.3 |  |
+
+Share of nodes, ungated → gated. Best baseline: the better of leaving the surface in place and the best model-free
+snap, as pre-registered. At a 4-voxel push on the native scans that is leaving the surface in place (51.5 %; no snap
+does as well); the "best snap" figures at 4 voxels in the v1.0/v1.1 text above are this number. On PHerc. 0814, r2 at
+Z = 2 keeps 85.6 % of nodes of the published surfaces within 1 voxel (was 45.0 %) and gives up 3 to 7 points on
+pushed surfaces. On the held-out PHerc. 0009B (post hoc), r2 at
+Z = 2 leaves 78.8 % within 1 voxel and stays 3 to 14 points over the best baseline at 4-12 voxel pushes (4.6 at 4);
+r3 at Z = 3 leaves 90.0 % there, but falls below the best baseline at 4 and 6 voxels (50.4 vs 51.5 %, 34.7 vs
+35.6 %).
+
+**When to use the gate.** Only for meshes that are already on their sheet (curated or hand-fixed segments), so that
+the tool leaves good regions alone and moves only where it is sure. Not for spiral fits or automatic traces: there
+the model moves too little rather than too much, and on the 12 PHerc. 0800 crops the gate lowers the gain (r3 39.5 %;
+Z = 2: 36.7 %; Z = 3: 35.2 %). No Z in the grid gives both 90 % at rest and 10 points over the best baseline at a
+4-voxel push on any native scan the model was not trained on (r3 does on its own training scan PHerc. 0139: 90.4 %
+and +15 points at Z = 1.5).
+
+**Second pass: `--iterations 2`** reads the CT again at the corrected surface and adds a second prediction.
+Post hoc on every scan, it helps only large errors: with r2 at a 12-voxel push, 40.9 → 49.5 % within 2 voxels on
+the Paris 4 test band, 28.8 → 33.3 % on PHerc. 0814, 35.3 → 39.3 % on PHerc. 0139 and 31.6 → 35.1 % on PHerc. 0009B
+(r3: 49.0 → 52.8 % and 40.0 → 40.7 % on Paris 4 and 0009B). It costs at rest (r2: 1 to 8 points fewer nodes within
+1 voxel) and at 4-voxel pushes (0.6 to 4.5 points); with the gate on, the gain at 12 voxels shrinks to 1-4 points
+(r2, Z = 2) or about none (r3, Z = 3).
+Use it only for meshes that may be 10 or more voxels off.
+
+**ScrollFiesta meshes: `python -m recto.obj in.obj out.obj --volume <zarr> --umbilicus axis.csv`.** Reads OBJ files
+as ScrollFiesta writes them ("v z y x" in voxels, "vt u v" in voxel-sized pixels), rasterises each UV chart onto a
+2-voxel grid, runs the same correction as `recto.apply` (same options: `--ckpt`, `--min-snr`, `--iterations`), and
+writes the OBJ back with each vertex moved along its normal by the offset interpolated from its chart, plus
+`out.offsets.npz` (offset, confidence and moved flag per vertex). `--umbilicus` takes ScrollFiesta's
+`configs/axis.csv` (z, y, x rows) as well as `umbilicus.json`. Tested on synthetic meshes only so far. A dry run on
+ScrollFiesta's PHerc. 0139 4x5x5 atlas (`atlas_bake.obj`, 98,521 vertices) gives 1.6 million nodes in 592 charts and
+needs 228 CT chunks of 128^3 (478 MB) of the 9.362 µm scan 20250728140407. That atlas holds core windings around the
+scroll axis, a regime the model was not validated in; use ScrollFiesta's axis there, and r2 (r3 was trained on
+PHerc. 0139 segments).
+
+**Fixes.** With `--cache`, the axis estimate stored its coarse (level-4) chunks in the level-0 cache folder, where
+their keys could collide with level-0 chunks at the scan corner (outside the scroll; none of them was read for the
+PHerc. 0800 demo crops, checked). It now has its own folder (`--axis-cache`, default `<cache>/axis`). Without
+`--cache`, v1.1 kept the chunks of every scan in one folder, so a second scan could read the first scan's chunks; the
+default is now one folder per volume. Nodes outside the mesh no longer read CT.
 
 ## How
 
@@ -102,10 +172,12 @@ move them by about a voxel without changing their ink.
    Laplace scale (confidence). 40,000 steps, one RTX 3090, 1.7 h.
 5. `recto/evaluate.py`, `recto/baselines.py`, `recto/external.py`, `recto/ink_ab.py`: the three tests above.
 6. `recto/apply.py`: the tool. Weights: `weights/recto_offset_r2.pt` (2 MB).
+7. v1.2: `recto/obj.py` (OBJ meshes), `recto/gate_eval.py` (the gate and second pass on the frozen crops),
+   `recto/demo_null.py` (the measured chance level of the PHerc. 0800 demo).
 
 Dataset: `data/manifest.json` lists every window (scan, patch, position, split); the stacks are rebuilt from the
 open data with `fetch_meshes` + `stacks` + `external` (CT is not redistributed). Tests: `python -m pytest tests`
-(8, including an end-to-end run of `apply` on a synthetic scan).
+(17, including end-to-end runs of `apply` and `obj` on a synthetic scan).
 
 ## Related work
 

@@ -1,6 +1,7 @@
 {
  "ckpt": "runs/r3/best.pt",
  "source": "github.com/pscamillo/vesuvius-eligible-meshes (PHerc0800)",
+ "correction_v1_2": "v1.1 compared these numbers with \"a random position 38.5 %\": that is 5/13, an even spread of the brightest layer over the 13 window positions, not a measurement. Measured chance on these 12 crops (random shifts along the normals, demo_pherc0800_null.json): 32.9 %. The published meshes are at chance; r3 is 6.6 points above it.",
  "pooled": {
   "within2_of_bright_before": 0.32916189434957654,
   "within2_of_bright_after": 0.3945665000694155,

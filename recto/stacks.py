@@ -54,6 +54,19 @@ def normals(zyx: np.ndarray, ok: np.ndarray) -> np.ndarray:
 
 
 def umbilicus_xy(path: str):
+    """z -> (y, x) of the scroll axis, linear between control points. JSON (umbilicus.json: control points as dicts or
+    [x, y, z] lists) or CSV rows z,y,x[,...] with '#' comments (ScrollFiesta's configs/axis.csv)."""
+    if path.lower().endswith(('.csv', '.txt')):
+        rows = []
+        for line in open(path):
+            f = line.split('#', 1)[0].replace(',', ' ').split()
+            try:
+                rows.append([float(v) for v in f[:3]])
+            except ValueError:                                     # a header line
+                continue
+        a = np.array([r for r in rows if len(r) == 3], float)
+        a = a[np.argsort(a[:, 0])]
+        return lambda z: np.stack([np.interp(z, a[:, 0], a[:, 1]), np.interp(z, a[:, 0], a[:, 2])], -1)
     pts = json.load(open(path))
     pts = pts.get('control_points', pts) if isinstance(pts, dict) else pts
     a = np.array([[p['z'], p['y'], p['x']] if isinstance(p, dict) else [p[2], p[1], p[0]] for p in pts], float)

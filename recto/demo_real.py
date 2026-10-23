@@ -81,7 +81,8 @@ def main(argv=None):
         if not crop(src, dst, rng, vol.shape[0]):
             continue
         out = dst + '_recto'
-        tool.main([dst, out, '--volume', f'{url}/0', '--cache', cache, '--ckpt', a.ckpt, '--device', 'cpu'])
+        tool.main([dst, out, '--volume', f'{url}/0', '--cache', cache, '--ckpt', a.ckpt, '--device', 'cpu',
+                   '--axis-cache', os.path.join(a.root, 'ext_ct', 'PHerc1447', 'axis')])
         z0, v0 = load_tifxyz(dst)
         f0, ok = upsample(z0, v0, 10.0)
         n = normals(f0, ok)
