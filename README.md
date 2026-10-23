@@ -158,6 +158,32 @@ PHerc. 0800 demo crops, checked). It now has its own folder (`--axis-cache`, def
 `--cache`, v1.1 kept the chunks of every scan in one folder, so a second scan could read the first scan's chunks; the
 default is now one folder per volume. Nodes outside the mesh no longer read CT.
 
+## Model-free controls on real meshes (24 October 2026)
+
+The real-mesh measure (share of nodes within 2 voxels of the brightest CT layer) can rise just because every node
+moves the same way. So both real-mesh runs were repeated against model-free shifts, with the same nodes, normals and
+measure, CPU only, no new CT.
+
+**PHerc. 0800, the 12 community crops above (r3): the gain is per node.** r3 39.5 %; the best constant shift along
+the normals, swept from -6 to +6 voxels, 34.3 % (+3.5 voxels); the best constant chosen separately for each crop on
+the measure itself (optimistic), 35.9 %; each crop moved by its own median r3 offset, 33.8 %; r3's own offsets
+shuffled among the nodes of each crop, 33.5 % (5 seeds). Shuffling keeps 0.5 of r3's 6.5 points. r3 beats the best
+per-crop constant by at least 1 point on 9 of 12 crops and ties on 3; one crop (z9264_w020) carries much of the
+pooled gain, and without it r3 is still 2.8 points over the most favourable constants. r2 scores 38.8 %.
+`results/control_pherc0800.json`, `runs/control_pherc0800.py`.
+
+**ScrollFiesta mesh, PHerc. 0139 (r2, `recto.obj`): neutral.** On ScrollFiesta's 4x5x5 atlas (98,521 vertices,
+1.6 million 2-voxel nodes in 589 charts, around the scroll axis), r2 raises the share from 40.5 % to 54.1 % (chance
+35.5 %), but moving every node 2 voxels outward with no model gives 55.4 % (on a 200,000-node sample). The
+brightest layer sits a median 3 voxels outward of ScrollFiesta's surface, which fits a surface placed at the
+dark-to-bright edge; r2 learned the Paris 4 verified placement, about a voxel further out. So on this mesh the tool
+mostly changes the placement convention; it does not show a repair. Which placement is better depends on what reads
+the surface next (for ink, the Paris 4 A/B above). `results/demo_sf0139.json`, `figures/demo_sf0139_sections.png`,
+`recto/demo_obj.py`, `runs/control_sf0139_constant.py`.
+
+The measure is a CT feature the model itself reads, and a snap to the brightest layer would score high by
+construction: these controls show that r3's moves are per node and follow the bright layer, not that they are right.
+
 ## How
 
 1. `recto/fetch_meshes.py`: a seeded, z-stratified sample of 246 verified patches (6,000 names drawn, up to 12

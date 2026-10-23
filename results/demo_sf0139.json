@@ -1,0 +1,601 @@
+{
+ "what": "recto-offset v1.2 (r2) on ScrollFiesta's PHerc0139 4x5x5 atlas (atlas_bake.obj), CPU demo; descriptive (CT features are not ground truth)",
+ "date": "2026-10-23",
+ "regime_warning": "scroll core: the ScrollFiesta axis runs inside the grid (distance from axis 0-501 voxels, median 281); the model was not validated in this regime. r2 was trained on Paris 4 only (r3 saw PHerc0139 and is not used).",
+ "inputs": {
+  "mesh": "D:/Competition/Vesuvius progress prizes/_sf/output/canonical_best/pherc0139_4x5x5/atlas/atlas_bake.obj",
+  "scan": "PHerc0139 20250728140407, 9.362 um, 113 keV, level 0",
+  "volume": "https://vesuvius-challenge-open-data.s3.us-east-1.amazonaws.com/PHerc0139/volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr/0",
+  "axis_csv": "D:/PrizeTemp/recto-sf/sf_axis_0139.csv (copy of the ScrollFiesta axis CSV recto_diag/sf_axis_0139.csv; z,y,x rows)",
+  "weights": "weights/recto_offset_r2.pt",
+  "ct_chunks_cached": "D:/PrizeTemp/recto-sf/ct"
+ },
+ "commands": {
+  "env": "cwd = repo root (v1.2, commit 9f868fa); OMP_NUM_THREADS=MKL_NUM_THREADS=4, CUDA_VISIBLE_DEVICES=-1; detached via Start-Process -WindowStyle Hidden (run_obj.ps1, run_demo.ps1)",
+  "dry_run": "C:/Users/PC/miniconda3/envs/vesuvius/python.exe -m recto.obj \"D:/Competition/Vesuvius progress prizes/_sf/output/canonical_best/pherc0139_4x5x5/atlas/atlas_bake.obj\" D:/PrizeTemp/recto-sf/dry.obj --dry-run --tifxyz D:/PrizeTemp/recto-sf/grid_before --device cpu",
+  "obj_r2": "C:/Users/PC/miniconda3/envs/vesuvius/python.exe -u -m recto.obj \"D:/Competition/Vesuvius progress prizes/_sf/output/canonical_best/pherc0139_4x5x5/atlas/atlas_bake.obj\" D:/PrizeTemp/recto-sf/atlas_bake_recto.obj --volume https://vesuvius-challenge-open-data.s3.us-east-1.amazonaws.com/PHerc0139/volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr/0 --umbilicus D:/PrizeTemp/recto-sf/sf_axis_0139.csv --ckpt weights/recto_offset_r2.pt --cache D:/PrizeTemp/recto-sf/ct --axis-cache D:/PrizeTemp/recto-sf/axis --device cpu --tifxyz D:/PrizeTemp/recto-sf/grid_before",
+  "obj_r2_min_snr2": "C:/Users/PC/miniconda3/envs/vesuvius/python.exe -u -m recto.obj \"D:/Competition/Vesuvius progress prizes/_sf/output/canonical_best/pherc0139_4x5x5/atlas/atlas_bake.obj\" D:/PrizeTemp/recto-sf/atlas_bake_recto_snr2.obj --volume https://vesuvius-challenge-open-data.s3.us-east-1.amazonaws.com/PHerc0139/volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr/0 --umbilicus D:/PrizeTemp/recto-sf/sf_axis_0139.csv --ckpt weights/recto_offset_r2.pt --cache D:/PrizeTemp/recto-sf/ct --axis-cache D:/PrizeTemp/recto-sf/axis --device cpu --min-snr 2",
+  "measure": "C:/Users/PC/miniconda3/envs/vesuvius/python.exe -u -m recto.demo_obj \"D:/Competition/Vesuvius progress prizes/_sf/output/canonical_best/pherc0139_4x5x5/atlas/atlas_bake.obj\" --after D:/PrizeTemp/recto-sf/atlas_bake_recto.obj --label r2 --after D:/PrizeTemp/recto-sf/atlas_bake_recto_snr2.obj --label r2_min_snr2 --volume https://vesuvius-challenge-open-data.s3.us-east-1.amazonaws.com/PHerc0139/volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr/0 --cache D:/PrizeTemp/recto-sf/ct --umbilicus D:/PrizeTemp/recto-sf/sf_axis_0139.csv --node-level --ckpt weights/recto_offset_r2.pt --title \"PHerc. 0139 (9.362 um, 113 keV), ScrollFiesta 4x5x5 atlas\" --out D:/PrizeTemp/recto-sf/demo_sf0139_measure.json --fig D:/PrizeTemp/recto-sf/demo_sf0139_sections.png",
+  "baselines": "C:/Users/PC/miniconda3/envs/vesuvius/python.exe -u D:/PrizeTemp/recto-sf/const_shift.py  (writes D:/PrizeTemp/recto-sf/demo_sf0139_baselines.json)",
+  "compose": "C:/Users/PC/miniconda3/envs/vesuvius/python.exe D:/PrizeTemp/recto-sf/compose_json.py"
+ },
+ "recto_obj_runs": {
+  "r2": {
+   "vertices": 98521,
+   "faces": 167397,
+   "uv_scale_vox_per_unit": 1.0124,
+   "grid": [
+    20867,
+    260
+   ],
+   "nodes": 1603348,
+   "charts": 592,
+   "ckpt": "recto_offset_r2.pt",
+   "step": 32000,
+   "max_shift": 8.0,
+   "min_snr": 0.0,
+   "iterations": 1,
+   "vertices_with_offset": 84186,
+   "median_abs_offset": 1.2141079221761297,
+   "moved_share": 1.0
+  },
+  "r2_min_snr2": {
+   "vertices": 98521,
+   "faces": 167397,
+   "uv_scale_vox_per_unit": 1.0124,
+   "grid": [
+    20867,
+    260
+   ],
+   "nodes": 1603348,
+   "charts": 592,
+   "ckpt": "recto_offset_r2.pt",
+   "step": 32000,
+   "max_shift": 8.0,
+   "min_snr": 2.0,
+   "iterations": 1,
+   "vertices_with_offset": 84186,
+   "median_abs_offset": 0.0,
+   "moved_share": 0.3809065640367757
+  },
+  "wall_times": [
+   "start A 10/23/2026 17:12:23",
+   "A exit 0  289s",
+   "B exit 0  289s"
+  ],
+  "measure_wall": [
+   "start demo 10/23/2026 17:55:58",
+   "demo exit 0  1904s"
+  ]
+ },
+ "headline": {
+  "nodes_measured": 1603348,
+  "charts": 589,
+  "within2_before_scrollfiesta": 0.40526011820266095,
+  "within2_after_r2": 0.5407017066787747,
+  "within2_after_r2_min_snr2": 0.5043540142252337,
+  "chance_uniform6_5seeds": {
+   "mean": 0.3550364612049287,
+   "min": 0.3546441571012656,
+   "max": 0.3552790785281798
+  },
+  "points_after_minus_before": {
+   "r2": 13.544158847611376,
+   "r2_min_snr2": 9.90938960225728
+  },
+  "points_before_minus_chance": 5.022365699773223,
+  "points_after_minus_chance": {
+   "r2": 18.5665245473846,
+   "r2_min_snr2": 14.931755302030503
+  },
+  "offset_grid_nodes": {
+   "r2": {
+    "median_abs_offset": 1.203897493152714,
+    "p90_abs_offset": 2.3527365554171618,
+    "mean_offset": 1.1456966641821866,
+    "moved_share_abs_gt_0.1": 0.9390675012536268
+   },
+   "r2_min_snr2": {
+    "median_abs_offset": 0.0,
+    "p90_abs_offset": 2.319895056448231,
+    "mean_offset": 0.7696122035642423,
+    "moved_share_abs_gt_0.1": 0.4376598218228357
+   }
+  },
+  "moved_share_gate_decision_nodes": {
+   "r2": 1.0,
+   "r2_min_snr2": 0.3814630385917468
+  },
+  "offset_vertices": {
+   "r2": {
+    "with_offset": 84186,
+    "of": 98521,
+    "median_abs_offset": 1.2141079902648926,
+    "p90_abs_offset": 2.3747591972351074,
+    "moved_share": 1.0
+   },
+   "r2_min_snr2": {
+    "with_offset": 84186,
+    "of": 98521,
+    "median_abs_offset": 0.0,
+    "p90_abs_offset": 2.348964214324951,
+    "moved_share": 0.3809065640367757
+   }
+  },
+  "nodes_on_to_off_bright_layer": {
+   "r2": 0.05742670961014078,
+   "r2_min_snr2": 0.027108899627529395
+  },
+  "nodes_off_to_on_bright_layer": {
+   "r2": 0.19286829808625452,
+   "r2_min_snr2": 0.12620279565010217
+  }
+ },
+ "scale_references": {
+  "PHerc0139_curated_segments_within2": 0.434,
+  "Paris4_verified_patches_within2": 0.509,
+  "PHerc0800_community_spiral_fits": {
+   "published": 0.329,
+   "chance": 0.329,
+   "r3": 0.395
+  },
+  "source": "recto-offset README v1.1/v1.2 (same measure; different meshes, crops and node spacing)"
+ },
+ "model_free_baselines": {
+  "what": "Model-free baselines for the recto.obj demo on the ScrollFiesta PHerc0139 atlas: every node moved by the same constant\nalong its outward normal, and every chart moved by its own median r2 offset; same measure as recto.demo_obj\n(recto.demo_meshes.brightest, within 2 voxels), on a seeded subsample of 200,000 of the measured nodes, with the\nScrollFiesta mesh and both recto.obj outputs measured on the same subsample.",
+  "subsample_nodes": 200000,
+  "seed": 0,
+  "scrollfiesta_mesh": 0.405255,
+  "mean_r2_offset_on_subsample": 1.1469214221626742,
+  "cases": {
+   "r2": 0.540345,
+   "r2_min_snr2": 0.503895,
+   "per_chart_median_r2_offset": 0.518245,
+   "constant_-2": 0.212165,
+   "constant_-1": 0.301375,
+   "constant_-0.5": 0.353935,
+   "constant_+0.5": 0.455355,
+   "constant_+1": 0.49852,
+   "constant_+1.15": 0.509295,
+   "constant_+1.5": 0.53136,
+   "constant_+2": 0.55439,
+   "constant_+2.5": 0.565735,
+   "constant_+3": 0.56485
+  },
+  "ct_chunks_fetched": 0,
+  "seconds": 117.6,
+  "peak_rss_mb": 1554
+ },
+ "reading": [
+  "On the bright-layer measure r2 raises the share from 40.5 % to 54.1 % (+13.5 points; chance 35.5 %); the gated run (--min-snr 2) gives 50.4 % and moves 38 % of the nodes.",
+  "Before correction the brightest layer sits mostly 2-4 voxels outward of the ScrollFiesta surface (median +3); r2 moves the surface outward by 1.15 voxels on average (median |offset| 1.20, p90 2.35) and the median brightest position becomes +2.",
+  "A model-free constant outward shift does as well or better on this measure: +1.15 voxels (r2 mean) 50.9 %, +2 voxels 55.4 %, +2.5 voxels 56.6 % vs r2 54.0 % on the same 200k-node subsample. Per node, r2 adds about 3.1 points over a constant shift of the same mean and 2.2 over each chart moved by its own median r2 offset.",
+  "So most of the gain is a systematic ~1-voxel outward shift from where ScrollFiesta puts the surface (its recto: the outward dark-to-bright boundary) to the convention r2 was trained on (Paris 4 verified patches, brightest layer 0-2 voxels outward), not a per-node repair; which convention is right depends on the downstream reader.",
+  "Not off-sheet: 5.7 % of nodes leave the +-2 band of the bright layer and 19.3 % enter it; 22 of 582 charts (>=100 nodes) lose 5 points or more, 426 gain 5 or more; the CT at the surface rises from 89.5 to 103.5.",
+  "Core regime: nodes within 100 voxels of the axis start at 57.7 % and end at 59.4 % (median |offset| 0.75); the gain is larger farther out (300+ voxels: 39.1 -> 53.5 %). Normals pointing to the axis after orientation: 0.05 % of nodes.",
+  "14335 of 98521 vertices (14.6 %) get no offset and keep their position: 2,788 belong to no face; of the rest, 91 % sit where the nearest grid node was left out as ambiguous (UV area covered by two charts or folded) and 8 % next to another chart (checked on the nearest node)."
+ ],
+ "verdict": "neutral: +13.5 points on the bright-layer share, but a model-free constant 2-voxel outward shift does as well (55.4 %), so the gain is mostly a convention shift, not a demonstrated repair",
+ "measurement": {
+  "mesh": "D:\\Competition\\Vesuvius progress prizes\\_sf\\output\\canonical_best\\pherc0139_4x5x5\\atlas\\atlas_bake.obj",
+  "after": {
+   "r2": "D:\\PrizeTemp\\recto-sf\\atlas_bake_recto.obj",
+   "r2_min_snr2": "D:\\PrizeTemp\\recto-sf\\atlas_bake_recto_snr2.obj"
+  },
+  "volume": "https://vesuvius-challenge-open-data.s3.us-east-1.amazonaws.com/PHerc0139/volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr/0",
+  "umbilicus": "D:\\PrizeTemp\\recto-sf\\sf_axis_0139.csv",
+  "grid": [
+   20867,
+   260
+  ],
+  "step_vox": 2.0,
+  "uv_scale_vox_per_unit": 1.0123986525207302,
+  "nodes_rasterised": 1604697,
+  "measure": "share of nodes whose brightest smoothed layer within +-6 voxels along the outward normal lies within 2 voxels of the surface (recto.demo_meshes.brightest); nodes every 2 voxels",
+  "chance": "each node moved by its own uniform random shift in +-6 voxels along its normal, 5 seeds (as recto.demo_null)",
+  "pooled": {
+   "nodes": 1603348,
+   "charts": 589,
+   "before": 0.40526011820266095,
+   "chance_uniform6": {
+    "mean": 0.3550364612049287,
+    "min": 0.3546441571012656,
+    "max": 0.3552790785281798,
+    "per_seed": [
+     0.35501650296754045,
+     0.3552790785281798,
+     0.3551512210699112,
+     0.3550913463577464,
+     0.3546441571012656
+    ]
+   },
+   "before_within1": 0.2412364627017965,
+   "chance_uniform6_within1": 0.21480751527428854,
+   "ct_at_surface_before": 89.49685365794272,
+   "brightest_before_median": 3.0,
+   "brightest_hist_before": [
+    0.0468,
+    0.0094,
+    0.0136,
+    0.0197,
+    0.0311,
+    0.0515,
+    0.0792,
+    0.1105,
+    0.133,
+    0.1349,
+    0.1081,
+    0.0601,
+    0.2022
+   ],
+   "brightest_hist_chance_seed0": [
+    0.087,
+    0.0232,
+    0.0397,
+    0.052,
+    0.0602,
+    0.0668,
+    0.0715,
+    0.0763,
+    0.0802,
+    0.0829,
+    0.0782,
+    0.0524,
+    0.2296
+   ],
+   "normals_pointing_to_axis_share": 0.0005139246127478252,
+   "distance_from_axis_vox": {
+    "median": 280.5135602171836,
+    "min": 0.4322987924626774,
+    "max": 500.50615026335413
+   },
+   "before_minus_chance_points": 5.022365699773223
+  },
+  "corrected": {
+   "r2": {
+    "tangential_median_vox": 0.008179819716834971,
+    "after": 0.5407017066787747,
+    "after_within1": 0.35591961320935944,
+    "median_abs_offset": 1.203897493152714,
+    "p90_abs_offset": 2.3527365554171618,
+    "mean_offset": 1.1456966641821866,
+    "moved_share_abs_gt_0.1": 0.9390675012536268,
+    "ct_at_surface_after": 103.45252334021649,
+    "brightest_after_median": 2.0,
+    "brightest_hist_after": [
+     0.0348,
+     0.0077,
+     0.0151,
+     0.0287,
+     0.0508,
+     0.087,
+     0.1245,
+     0.1444,
+     0.134,
+     0.1091,
+     0.0784,
+     0.042,
+     0.1436
+    ],
+    "on_to_off": 0.05742670961014078,
+    "off_to_on": 0.19286829808625452,
+    "on_to_on": 0.34783340859252015,
+    "after_minus_before_points": 13.544158847611376,
+    "after_minus_chance_points": 18.5665245473846,
+    "charts_ge100_nodes": {
+     "charts": 582,
+     "worse_by_5_points_or_more": 22,
+     "better_by_5_points_or_more": 426,
+     "median_change_points": 12.060928143068619,
+     "nodes_in_charts_worse_by_5": 29170
+    },
+    "vertices": {
+     "with_offset": 84186,
+     "of": 98521,
+     "median_abs_offset": 1.2141079902648926,
+     "p90_abs_offset": 2.3747591972351074,
+     "moved_share": 1.0
+    }
+   },
+   "r2_min_snr2": {
+    "tangential_median_vox": 0.0,
+    "after": 0.5043540142252337,
+    "after_within1": 0.32369329677649517,
+    "median_abs_offset": 0.0,
+    "p90_abs_offset": 2.319895056448231,
+    "mean_offset": 0.7696122035642423,
+    "moved_share_abs_gt_0.1": 0.4376598218228357,
+    "ct_at_surface_after": 99.49913634381915,
+    "brightest_after_median": 2.0,
+    "brightest_hist_after": [
+     0.0388,
+     0.0081,
+     0.0137,
+     0.0241,
+     0.0422,
+     0.0746,
+     0.1117,
+     0.1373,
+     0.1385,
+     0.1187,
+     0.0864,
+     0.046,
+     0.1599
+    ],
+    "on_to_off": 0.027108899627529395,
+    "off_to_on": 0.12620279565010217,
+    "on_to_on": 0.37815121857513156,
+    "after_minus_before_points": 9.90938960225728,
+    "after_minus_chance_points": 14.931755302030503,
+    "charts_ge100_nodes": {
+     "charts": 582,
+     "worse_by_5_points_or_more": 10,
+     "better_by_5_points_or_more": 311,
+     "median_change_points": 5.905662791070965,
+     "nodes_in_charts_worse_by_5": 12717
+    },
+    "vertices": {
+     "with_offset": 84186,
+     "of": 98521,
+     "median_abs_offset": 0.0,
+     "p90_abs_offset": 2.348964214324951,
+     "moved_share": 0.3809065640367757
+    }
+   },
+   "node_r2": {
+    "after": 0.5415942141069812,
+    "after_within1": 0.3568345736546277,
+    "median_abs_offset": 1.2072918958751893,
+    "p90_abs_offset": 2.3664215547070917,
+    "mean_offset": 1.1477308292777924,
+    "moved_share_abs_gt_0.1": 0.9379180315190464,
+    "ct_at_surface_after": 103.535032097024,
+    "brightest_after_median": 2.0,
+    "brightest_hist_after": [
+     0.0348,
+     0.0077,
+     0.015,
+     0.0286,
+     0.0508,
+     0.0873,
+     0.1249,
+     0.1447,
+     0.134,
+     0.1089,
+     0.0781,
+     0.0419,
+     0.1434
+    ],
+    "on_to_off": 0.05735997425387377,
+    "off_to_on": 0.19369407015819398,
+    "on_to_on": 0.34790014394878715,
+    "after_minus_before_points": 13.633409590432022,
+    "after_minus_chance_points": 18.655775290205245,
+    "charts_ge100_nodes": {
+     "charts": 582,
+     "worse_by_5_points_or_more": 24,
+     "better_by_5_points_or_more": 427,
+     "median_change_points": 12.220241005788012,
+     "nodes_in_charts_worse_by_5": 32137
+    }
+   },
+   "node_r2_min_snr2": {
+    "after": 0.5042635784620682,
+    "after_within1": 0.32403757637144276,
+    "median_abs_offset": 0.0,
+    "p90_abs_offset": 2.3448471684163534,
+    "mean_offset": 0.7716845031785089,
+    "moved_share_abs_gt_0.1": 0.3814630385917468,
+    "ct_at_surface_after": 99.48952737801346,
+    "brightest_after_median": 2.0,
+    "brightest_hist_after": [
+     0.039,
+     0.0081,
+     0.0138,
+     0.0241,
+     0.0424,
+     0.0748,
+     0.1124,
+     0.1369,
+     0.1379,
+     0.1184,
+     0.086,
+     0.0461,
+     0.1602
+    ],
+    "on_to_off": 0.026727822032397208,
+    "off_to_on": 0.12573128229180439,
+    "on_to_on": 0.37853229617026374,
+    "after_minus_before_points": 9.90034602594072,
+    "after_minus_chance_points": 14.922711725713944,
+    "charts_ge100_nodes": {
+     "charts": 582,
+     "worse_by_5_points_or_more": 12,
+     "better_by_5_points_or_more": 308,
+     "median_change_points": 5.953580824493045,
+     "nodes_in_charts_worse_by_5": 14415
+    }
+   }
+  },
+  "by_chart_size": {
+   "0-1000 nodes/chart": {
+    "nodes": 67024,
+    "charts": 123,
+    "before": 0.4377536404869897,
+    "chance_uniform6_mean": 0.36636428741943183,
+    "r2": 0.5551145858200047,
+    "r2_median_abs_offset": 1.2820256982732001,
+    "r2_min_snr2": 0.5210074003342087,
+    "r2_min_snr2_median_abs_offset": 0.0,
+    "node_r2": 0.5558307471950347,
+    "node_r2_median_abs_offset": 1.3103413790831453,
+    "node_r2_min_snr2": 0.5189335163523514,
+    "node_r2_min_snr2_median_abs_offset": 0.0
+   },
+   "1000-2500 nodes/chart": {
+    "nodes": 236765,
+    "charts": 139,
+    "before": 0.4152387388338648,
+    "chance_uniform6_mean": 0.3638417840474732,
+    "r2": 0.5603911051042173,
+    "r2_median_abs_offset": 1.3647417938415818,
+    "r2_min_snr2": 0.528308660486136,
+    "r2_min_snr2_median_abs_offset": 0.0,
+    "node_r2": 0.561303402107575,
+    "node_r2_median_abs_offset": 1.3687234629123783,
+    "node_r2_min_snr2": 0.5290013304331299,
+    "node_r2_min_snr2_median_abs_offset": 0.0
+   },
+   "2500-5000 nodes/chart": {
+    "nodes": 1246911,
+    "charts": 317,
+    "before": 0.4008273244842655,
+    "chance_uniform6_mean": 0.3532600161519146,
+    "r2": 0.5362580007715065,
+    "r2_median_abs_offset": 1.1850369797293319,
+    "r2_min_snr2": 0.4989137155739263,
+    "r2_min_snr2_median_abs_offset": 0.0,
+    "node_r2": 0.5371490026152629,
+    "node_r2_median_abs_offset": 1.1868865364519503,
+    "node_r2_min_snr2": 0.4987749727125673,
+    "node_r2_min_snr2_median_abs_offset": 0.0
+   },
+   "5000-max nodes/chart": {
+    "nodes": 52648,
+    "charts": 10,
+    "before": 0.4240047105303145,
+    "chance_uniform6_mean": 0.3430899559337487,
+    "r2": 0.53905181583346,
+    "r2_median_abs_offset": 1.0488938938116508,
+    "r2_min_snr2": 0.5042736666160158,
+    "r2_min_snr2_median_abs_offset": 0.0,
+    "node_r2": 0.5401154839690017,
+    "node_r2_median_abs_offset": 1.0595775990214031,
+    "node_r2_min_snr2": 0.5043306488375627,
+    "node_r2_min_snr2_median_abs_offset": 0.0
+   }
+  },
+  "by_distance_from_axis": {
+   "0-100 vox from axis": {
+    "nodes": 18372,
+    "charts": 31,
+    "before": 0.5772915305900284,
+    "chance_uniform6_mean": 0.40926409753973436,
+    "r2": 0.5944916176790769,
+    "r2_median_abs_offset": 0.7515238849351982,
+    "r2_min_snr2": 0.5877422164162857,
+    "r2_min_snr2_median_abs_offset": 0.0,
+    "node_r2": 0.5948182016111474,
+    "node_r2_median_abs_offset": 0.7774727811242577,
+    "node_r2_min_snr2": 0.5874700631395602,
+    "node_r2_min_snr2_median_abs_offset": 0.0
+   },
+   "100-200 vox from axis": {
+    "nodes": 226140,
+    "charts": 162,
+    "before": 0.4462589546298753,
+    "chance_uniform6_mean": 0.37438224108959056,
+    "r2": 0.5481515875121606,
+    "r2_median_abs_offset": 1.095520860002682,
+    "r2_min_snr2": 0.5197709383567701,
+    "r2_min_snr2_median_abs_offset": 0.0,
+    "node_r2": 0.5490669496771912,
+    "node_r2_median_abs_offset": 1.1014292179968899,
+    "node_r2_min_snr2": 0.5188069337578491,
+    "node_r2_min_snr2_median_abs_offset": 0.0
+   },
+   "200-300 vox from axis": {
+    "nodes": 722179,
+    "charts": 320,
+    "before": 0.40090891593358435,
+    "chance_uniform6_mean": 0.3496479404690527,
+    "r2": 0.5416787250806241,
+    "r2_median_abs_offset": 1.160495501595347,
+    "r2_min_snr2": 0.4966774165407745,
+    "r2_min_snr2_median_abs_offset": 0.0,
+    "node_r2": 0.5424001528706872,
+    "node_r2_median_abs_offset": 1.1630871891815289,
+    "node_r2_min_snr2": 0.49669818701457674,
+    "node_r2_min_snr2_median_abs_offset": 0.0
+   },
+   "300-max vox from axis": {
+    "nodes": 636657,
+    "charts": 244,
+    "before": 0.3906687588450296,
+    "chance_uniform6_mean": 0.3527123710255287,
+    "r2": 0.5353950400294036,
+    "r2_median_abs_offset": 1.331350166514649,
+    "r2_min_snr2": 0.5051793980118022,
+    "r2_min_snr2_median_abs_offset": 0.0,
+    "node_r2": 0.5364898210496389,
+    "node_r2_median_abs_offset": 1.3312752766586011,
+    "node_r2_min_snr2": 0.5052783523938321,
+    "node_r2_min_snr2_median_abs_offset": 0.0
+   }
+  },
+  "node_level": {
+   "ckpt": "recto_offset_r2.pt",
+   "gate_clip_ambiguous_nodes": {
+    "2": 0
+   },
+   "moved_share": {
+    "r2": 1.0,
+    "r2_min_snr2": 0.3814630385917468
+   },
+   "median_predicted_scale_vox": 0.7182028713239894
+  },
+  "figure": {
+   "path": "D:\\PrizeTemp\\recto-sf\\demo_sf0139_sections.png",
+   "panels": [
+    {
+     "chart": 2810,
+     "chart_nodes": 5820,
+     "line": "column 234",
+     "nodes_on_line": 95,
+     "centre_zyx": [
+      4815,
+      3378,
+      2735
+     ]
+    },
+    {
+     "chart": 140,
+     "chart_nodes": 5377,
+     "line": "column 27",
+     "nodes_on_line": 100,
+     "centre_zyx": [
+      4406,
+      3416,
+      3010
+     ]
+    },
+    {
+     "chart": 402,
+     "chart_nodes": 5271,
+     "line": "column 36",
+     "nodes_on_line": 87,
+     "centre_zyx": [
+      4424,
+      3392,
+      3126
+     ]
+    },
+    {
+     "chart": 1147,
+     "chart_nodes": 5247,
+     "line": "column 91",
+     "nodes_on_line": 84,
+     "centre_zyx": [
+      4533,
+      3248,
+      3150
+     ]
+    }
+   ]
+  },
+  "ct_chunks_fetched_here": 0,
+  "seconds": 1894.2,
+  "peak_rss_mb": 2072
+ },
+ "figure": "D:/PrizeTemp/recto-sf/demo_sf0139_sections.png"
+}
